@@ -1,6 +1,7 @@
 import curses
 from curses import wrapper
 import time
+import random
 
 def startScreen(stdscr):
     stdscr.clear()
@@ -22,13 +23,21 @@ def display_text(stdscr, target, current, wpm=0):
         stdscr.addstr(0, i, char, color)  
     
     
+def load_text():
+    with open("text.txt", "r") as f:
+        lines = f.readlines()
+        #.strip removes the leading or trailing backspace characters and it takes away the \n
+        return random.choice(lines).strip()
+    
+    
 def wpmTest(stdscr):
-    target_text = "Hello world this is some test text for this app!"
+    target_text = load_text()
     current_text = []
     wpm = 0
     start_time = time.time()
     stdscr.nodelay(True)
     
+    #this part of the code is to calculate the words per minute. locate the logic below!
     while True:
         time_elapsed = max(time.time() - start_time, 1)
         wpm = round((len(current_text) / (time_elapsed / 60)) / 5)
@@ -36,7 +45,7 @@ def wpmTest(stdscr):
         stdscr.clear()
         display_text(stdscr, target_text, current_text, wpm)
         stdscr.refresh()
-        
+        #checks to see if the text typed by the player is correct
         if "".join(current_text) == target_text:
             stdscr.nodelay(False)
             break
@@ -48,7 +57,7 @@ def wpmTest(stdscr):
         
         if ord(key) == 27:
             break
-        
+        #this corrects the error of backspacing and taking out the characters on the display
         if key in ("KEY_BACKSPACE", '\b', '\x7f'):
             if len(current_text) > 0:
                 current_text.pop()
@@ -65,9 +74,14 @@ def main(stdscr):
 
     
     startScreen(stdscr)
-    wpmTest(stdscr)
-    
-    stdscr.addstr(2, 0, "You completed the text! Press any key to continue...")
-    stdscr.getkey()
-    
+    while True:
+        wpmTest(stdscr)
+        
+        stdscr.addstr(2, 0, "You completed the text! Press any key to continue...")
+        
+        key = stdscr.getkey()
+        
+        if ord(key) == 27:
+            break
+        
 wrapper(main)
