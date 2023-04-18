@@ -37,6 +37,10 @@ def wpmTest(stdscr):
         display_text(stdscr, target_text, current_text, wpm)
         stdscr.refresh()
         
+        if "".join(current_text) == target_text:
+            stdscr.nodelay(False)
+            break
+        
         try:
             key = stdscr.getkey()
         except:
@@ -62,5 +66,8 @@ def main(stdscr):
     
     startScreen(stdscr)
     wpmTest(stdscr)
+    
+    stdscr.addstr(2, 0, "You completed the text! Press any key to continue...")
+    stdscr.getkey()
     
 wrapper(main)
